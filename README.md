@@ -1,5 +1,7 @@
 # Riemann2Vec
 
+**[Open the live explorer](https://skblaz.github.io/Riemann2vec/)**
+
 Where does the proof that every nontrivial zeta zero lies on the critical line actually use nonvanishing? Riemann2Vec lets you follow that question from the exported Lean theorem to the line that invokes the relevant lemma. It also maps 69,737 identifiers by how they are used across Levent Alpöge’s original Lean release.
 
 ![The global embedding of 5,506 sampled identifiers, with riemannZeta selected and its nearest neighbors listed alongside the plot.](screenshots/embedding-atlas.png)
@@ -16,7 +18,7 @@ Open the [proof guide](http://127.0.0.1:8000/). The site includes the trained at
 
 ## Follow a proof path
 
-Open the two-step path `riemannHypothesis → rhOfAll → allChi`. Move **Trace path** to step 2. The highlighted line in `MainTheorems.lean` shows exactly where `rhOfAll` passes `allChi` to `Formalism.VW.rh_of_every`. Select the line to open the reader. The URL preserves the selected step. [Open this path locally](http://127.0.0.1:8000/#proof=riemannHypothesis&target=allChi&space=1&step=2)
+Open the two-step path `riemannHypothesis → rhOfAll → allChi`. Move **Trace path** to step 2. The highlighted line in `MainTheorems.lean` shows exactly where `rhOfAll` passes `allChi` to `Formalism.VW.rh_of_every`. Select the line to open the reader. The URL preserves the selected step. [Open this proof path](https://skblaz.github.io/Riemann2vec/#proof=riemannHypothesis&target=allChi&space=1&step=2)
 
 ![The two proof dependencies plotted over the embedding, with allChi selected and its use in MainTheorems.lean highlighted.](screenshots/proof-path.png)
 
@@ -24,13 +26,13 @@ The path graph contains 993 declarations from 63 indexed modules. Each directed 
 
 ## Read the argument in Lean
 
-In **Reflect a zeta zero**, jump to `riemannZeta_one_sub` at line 28. The reader opens the functional-equation call inside `Formalism.VW.rh_of_right`. Follow an underlined constant to inspect its declaration, or open **Kernel refs** to see what the compiler recorded in the type and the proof body. [Open the reflection chapter locally](http://127.0.0.1:8000/#guide=zeta-reflection)
+In **Reflect a zeta zero**, jump to `riemannZeta_one_sub` at line 28. The reader opens the functional-equation call inside `Formalism.VW.rh_of_right`. Follow an underlined constant to inspect its declaration, or open **Kernel refs** to see what the compiler recorded in the type and the proof body. [Open the reflection chapter](https://skblaz.github.io/Riemann2vec/#guide=zeta-reflection)
 
 ![RhOfRight.lean open at the functional-equation call, with the enclosing theorem’s signature and resolved references alongside the source.](screenshots/lean-reader.png)
 
 ## Explore related identifiers
 
-Search for `riemannZeta` in the embedding map to see names used in similar Lean contexts. Its eight nearest neighbors are ranked by cosine similarity in 64 dimensions. Color groups the vocabulary into eight regions and 24 subclusters. The global map projects a sample into two dimensions. Opening a subcluster gives that group its own projection. [Open the zeta neighborhood locally](http://127.0.0.1:8000/#term=riemannZeta&projection=full)
+Search for `riemannZeta` in the embedding map to see names used in similar Lean contexts. Its eight nearest neighbors are ranked by cosine similarity in 64 dimensions. Color groups the vocabulary into eight regions and 24 subclusters. The global map projects a sample into two dimensions. Opening a subcluster gives that group its own projection. [Open the zeta neighborhood](https://skblaz.github.io/Riemann2vec/#term=riemannZeta&projection=full)
 
 ## Source and attribution
 
@@ -38,4 +40,4 @@ Levent Alpöge released the formalization on **20 November 2026**. His four-page
 
 ## Rebuild or host
 
-The browser app and its assets live in [docs/](docs/). For branch-based GitHub Pages hosting, use `main` and the `/docs` folder after merging. The optional Python reader can resolve declarations beyond the bundled snapshot using the pinned source and the community build cache. [Development and data rebuild instructions](DEVELOPMENT.md)
+GitHub Pages serves the explorer from [docs/](docs/) on the `main` branch. The optional Python reader can resolve declarations beyond the bundled snapshot using the pinned source and the community build cache. [Development and data rebuild instructions](DEVELOPMENT.md)
