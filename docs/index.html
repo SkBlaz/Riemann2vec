@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="An interactive Word2Vec atlas of Levent Alpöge’s Lean formalization of the Riemann hypothesis.">
+  <meta name="keywords" content="Riemann hypothesis, Levent Alpöge, Dirichlet L-functions, Lean 4, formal proofs, analytic number theory, proof visualization, Word2Vec, embeddings">
+  <meta name="theme-color" content="#ffffff">
+  <title>Riemann2Vec · A map of the Lean proof</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <script>
+    // Start the assets for the bookmarked view while the browser parses the document.
+    {
+      const params = new URLSearchParams(location.hash.slice(1));
+      const mode = ["proof", "module", "mathlib", "cluster", "term"].find(key => params.has(key));
+      function preload(href, as) {
+        const link = document.createElement("link");
+        link.rel = as ? "preload" : "modulepreload";
+        if (as) link.as = as;
+        if (as === "fetch") link.crossOrigin = "anonymous";
+        link.href = href;
+        document.head.append(link);
+      }
+      if (mode) {
+        document.documentElement.dataset.explorerEntry = "";
+        preload("explorer.css", "style");
+        for (const file of ["app", "reader", "assets", "ui"]) preload(file + ".js");
+        if (mode !== "proof") preload("guide.js");
+        if (mode !== "cluster") { preload("paths.js"); preload("branches.js"); }
+        preload("data/meta.json", "fetch");
+        const indexes = mode === "cluster" ? [params.get(mode).includes(".") ? "atlas-index" : "atlas-overview"]
+          : mode === "term" ? ["atlas-index", "regions", "proof-graph"]
+          : mode === "proof" ? ["proof-graph"] : ["reader-index", "proof-graph"];
+        for (const name of indexes) preload("data/" + name + ".json" + (typeof DecompressionStream === "undefined" ? "" : ".gz"), "fetch");
+      } else {
+        for (const file of ["opening", "opening-data", "ui", "trace-control"]) preload(file + ".js");
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="start.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="shell top-inner">
+    <a class="brand" href="./" aria-label="Riemann2Vec home"><img src="icon.svg" alt="" width="32" height="32">Riemann<span>2Vec</span></a>
+    <span class="mast-caption">The Riemann hypothesis in Lean</span>
+    <nav aria-label="Resources">
+      <a id="repo-link" href="https://github.com/leanprover-community/riemann-hypothesis/tree/40e56bab026552e089d7afcfeff08d2defb9c005" target="_blank" rel="noreferrer">Lean source</a>
+      <a href="https://leanprover-community.github.io/blog/posts/riemann-hypothesis/" target="_blank" rel="noreferrer">Verification</a>
+      <button id="about-button" class="text-button">Method</button>
+    </nav>
+  </div>
+</header>
+<main class="shell">
+  <h1 class="sr-only">Riemann hypothesis proof explorer</h1>
+  <section class="workspace" aria-label="Proof explorer">
+    <div class="toolbar">
+      <div class="views" aria-label="Explorer view">
+        <button id="guide-view" class="view-button" aria-pressed="true">Proof guide</button>
+        <button id="paths-view" class="view-button" aria-pressed="false">Proof paths</button>
+        <button id="map-view" class="view-button" aria-pressed="false">Embedding map</button>
+        <button id="module-view" class="view-button" aria-pressed="false">Lean reader</button>
+      </div>
+      <div class="search" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="5.5"/><path d="m15 15 4 4"/></svg>
+        <select id="lean-search-kind" aria-label="Lean search scope" hidden>
+          <option value="all">All Lean</option><option value="declaration">Declarations</option><option value="module">Modules</option>
+        </select>
+        <input id="search" type="search" placeholder="Search Lean identifiers…" aria-label="Search Lean identifiers" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="search-results" autocomplete="off" disabled>
+        <kbd>/</kbd>
+        <ul id="search-results" role="listbox" hidden></ul>
+      </div>
+    </div>
+    <p class="entry-loading" role="status">Opening explorer…</p>
+    <button id="load-retry" hidden>Retry loading explorer</button>
+    <div id="proof-guide" class="proof-guide" aria-label="Proof reading guide">
+      <nav class="proof-nav" aria-label="Guide chapters" id="proof-nav"><label class="chapter-choice">Chapter<select id="chapter-picker"><option value="statement">What Lean proves</option><option value="zeta-reduction">Specialize to the trivial character</option><option value="zeta-reflection">Reflect a zeta zero</option><option value="dirichlet-strip">Handle the character conductor</option><option value="half-plane">Locate the common input</option><option value="automorphic-window">Follow the Galois input to VWin</option><option value="assembly">Combine the automorphic inputs</option><option value="chebyshev">Read the Chebyshev window criterion</option><option value="landau-window">Use a one-sided bound to exclude a zero</option></select></label><h3>The statements</h3><a href="#guide=statement" data-chapter="statement" aria-current="page">What Lean proves</a><h3>The analytic reductions</h3><a href="#guide=zeta-reduction" data-chapter="zeta-reduction">Specialize to the trivial character</a><a href="#guide=zeta-reflection" data-chapter="zeta-reflection">Reflect a zeta zero</a><a href="#guide=dirichlet-strip" data-chapter="dirichlet-strip">Handle the character conductor</a><h3>Where nonvanishing comes from</h3><a href="#guide=half-plane" data-chapter="half-plane">Locate the common input</a><a href="#guide=automorphic-window" data-chapter="automorphic-window">Follow the Galois input to VWin</a><a href="#guide=assembly" data-chapter="assembly">Combine the automorphic inputs</a><a href="#guide=chebyshev" data-chapter="chebyshev">Read the Chebyshev window criterion</a><a href="#guide=landau-window" data-chapter="landau-window">Use a one-sided bound to exclude a zero</a></nav>
+      <article class="proof-chapter" aria-labelledby="chapter-title" id="proof-chapter">
+        <div class="chapter-lead">
+          <div class="chapter-statement">
+            <h2 id="chapter-title" tabindex="-1">What Lean proves</h2>
+            <p id="chapter-summary" class="chapter-summary">Every nontrivial zero of the Riemann zeta function lies on the critical line. Main.lean exports this result with Mathlib’s RiemannHypothesis type, alongside the corresponding results for Dirichlet L-functions.</p>
+            <p id="chapter-formula" class="chapter-formula">ζ(s) = 0,  s ∉ {−2, −4, …},  s ≠ 1   ⟹   Re(s) = ½</p>
+          </div>
+          <div id="opening-study">
+          <a id="opening-path" class="opening-path" href="#proof=riemannHypothesis&amp;target=allChi&amp;space=1">
+            <figure>
+              <img src="opening-path.svg#step-0" loading="lazy" width="460" height="220" alt="riemannHypothesis, rhOfAll and allChi at their embedding positions, connected in dependency order.">
+              <figcaption><strong>RH to nonvanishing</strong><span>Inspect path</span></figcaption>
+            </figure>
+          </a>
+          <div id="opening-trace"></div>
+          </div>
+        </div>
+        <div class="chapter-columns">
+          <section aria-labelledby="chapter-sources-title">
+            <h3 id="chapter-sources-title">Read in Lean</h3>
+            <ul id="chapter-sources" class="chapter-sources"><li><a class="chapter-source" href="#module=src%2FMain.lean&amp;line=4&amp;chapter=statement"><code>riemannHypothesis</code><span class="source-line">L4</span></a><span class="chapter-source-caption">Main.lean · Exported theorem</span></li><li><a class="chapter-source" href="#module=src%2FSupplements%2FKernels%2FMainTheorems.lean&amp;line=9&amp;chapter=statement"><code>rhOfAll</code><span class="source-line">L9</span></a><span class="chapter-source-caption">MainTheorems.lean · Final assembly</span></li><li><a class="chapter-source" href="#module=src%2FStatements.lean&amp;line=3&amp;chapter=statement"><code>RiemannZetaZerosOnLine</code><span class="source-line">L3</span></a><span class="chapter-source-caption">Statements.lean · Explicit zeta statement</span></li><li><a class="chapter-source" href="#module=src%2FStatements.lean&amp;line=10&amp;chapter=statement"><code>DirichletLZerosOnLine</code><span class="source-line">L10</span></a><span class="chapter-source-caption">Statements.lean · Explicit GRH statement</span></li></ul>
+          </section>
+          <section aria-labelledby="chapter-reading-title">
+            <h3 id="chapter-reading-title">Reading notes</h3>
+            <p id="chapter-reading">The proof in Main.lean is one name, rhOfAll. Open its definition to see where the nonvanishing result allChi enters. Statements.lean gives the precise hypotheses on the strip and the pole.</p>
+            <h3>Continue reading</h3>
+            <ul id="chapter-next" class="chapter-next"><li><a href="#guide=zeta-reduction">Follow the zeta proof</a></li><li><a href="#guide=dirichlet-strip">Follow the GRH branch</a></li></ul>
+            <p id="chapter-embedding" class="chapter-embedding"><a href="#term=riemannZeta&amp;chapter=statement">Explore riemannZeta in the embedding map</a></p>
+          </section>
+        </div>
+      </article>
+    </div>
+    <section id="proof-paths" aria-label="Proof paths" hidden>
+      <div class="paths-head"><h2>Proof paths</h2><p>One step means that a compiled proof or definition body uses the next declaration.</p></div>
+      <div class="paths-grid">
+        <section class="paths-picker">
+          <form id="origin-form"><label for="path-origin">Starting declaration</label>
+            <div class="origin-controls"><input id="path-origin" list="path-origins" required autocomplete="off"><button>Set origin</button></div>
+            <datalist id="path-origins"></datalist>
+            <div class="path-presets"><span>Start from</span> <a href="#proof=riemannHypothesis">RH</a> · <a href="#proof=LFunction_eq_zero_re">Dirichlet GRH</a></div>
+          </form>
+          <label for="path-search">Find a dependency</label><input id="path-search" type="search" autocomplete="off" placeholder="Filter reachable declarations…">
+          <p class="path-axis">Declarations by dependency distance</p>
+          <div id="path-depths" aria-label="Filter by dependency steps"></div>
+          <p id="path-count" role="status"></p><div id="path-results"></div>
+        </section>
+        <section id="path-trace" tabindex="-1" aria-label="Selected dependency path"></section>
+      </div>
+    </section>
+    <div class="workbody" id="explorer-body" hidden>
+      <div class="map-section" id="map-section">
+        <div class="embedding-bar">
+          <nav id="embedding-path" aria-label="Embedding hierarchy"></nav>
+          <button id="projection-toggle" class="projection-toggle">Full PCA</button>
+        </div>
+        <div id="region-explorer" class="region-explorer"></div>
+        <div id="plot-stage" class="plot-stage" hidden>
+        <div class="map-head">
+          <div><i></i><strong id="map-label">SUBCLUSTER PCA</strong><small id="map-count"></small></div>
+          <span id="map-status" role="status">Loading the atlas…</span>
+        </div>
+        <canvas id="map" tabindex="0" title="Drag to pan or pinch to zoom. Keyboard: arrow keys to pan, + and − to zoom, Home to reset." aria-label="Interactive projection of Lean identifier embeddings. Arrow keys pan. Plus and minus zoom. Home resets. Search for an identifier or use the related terms list to explore with a keyboard."></canvas>
+        <div id="tooltip" aria-hidden="true" hidden></div>
+        <span id="axis-x" class="axis">PC 1</span><span id="axis-y" class="axis">PC 2</span>
+        <div class="map-tools" aria-label="Map controls">
+          <button id="zoom-in" title="Zoom in" aria-label="Zoom in">+</button>
+          <button id="zoom-out" title="Zoom out" aria-label="Zoom out">−</button>
+          <button id="reset-map" title="Reset map" aria-label="Reset map"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4H4v4m12-4h4v4M4 16v4h4m12-4v4h-4"/></svg></button>
+        </div>
+        <details id="region-legend" class="region-legend" hidden>
+          <summary>Explore regions</summary>
+          <div id="region-colors"></div>
+        </details>
+        </div>
+        <p id="projection-caption" hidden></p>
+      </div>
+      <div class="modules-section" id="modules-section" hidden>
+        <div class="module-heading">
+          <div><h2 id="module-title" tabindex="-1">Lean modules</h2><p id="module-description">Open a module to see its source, declarations and direct imports.</p></div>
+          <button id="module-toggle" class="view-button">Browse modules</button>
+        </div>
+        <div id="module-list" class="module-list" aria-label="Modules" hidden></div>
+        <div id="reader-toolbar" class="reader-toolbar" hidden>
+          <nav id="reading-trail" aria-label="Reading trail"></nav>
+          <button id="reader-wrap" class="view-button" aria-pressed="false">Wrap lines</button>
+          <button id="reader-scope" class="view-button" hidden>Show full file</button>
+        </div>
+        <p id="reader-status" class="reader-status" role="status" hidden></p>
+        <div id="module-content" aria-label="Lean source"></div>
+      </div>
+      <aside class="inspector" aria-label="Selection details">
+        <div class="inspector-heading">
+          <p class="kicker" id="selection-type">SELECTED IDENTIFIER</p>
+          <h2 id="selection" aria-live="polite">Loading…</h2>
+          <p id="selection-meta" class="selection-meta"></p>
+          <div id="selection-region"></div>
+        </div>
+        <div id="detail-tabs" class="detail-tabs" aria-label="Selection view">
+          <button id="near-tab" aria-pressed="true">Nearest terms</button>
+          <button id="source-tab" aria-pressed="false">Lean references</button>
+        </div>
+        <div id="reader-tabs" class="detail-tabs" aria-label="Lean inspector view" hidden>
+          <button id="declaration-tab" aria-pressed="true">Declaration</button>
+          <button id="kernel-tab" aria-pressed="false" hidden>Kernel refs</button>
+          <button id="uses-tab" aria-pressed="false">Used by</button>
+          <button id="module-tab" aria-pressed="false">Module</button>
+        </div>
+        <div id="details" class="details" aria-label="Selection results"></div>
+      </aside>
+    </div>
+  </section>
+  <footer>
+    <span>Lean formalization by Levent Alpöge</span>
+    <a href="https://alpo.ge/remark.pdf" target="_blank" rel="noreferrer">Release announcement · 20 Nov 2026</a>
+  </footer>
+</main>
+<dialog id="about">
+  <div class="dialog-inner">
+    <button class="close" aria-label="Close method">×</button>
+    <p class="kicker">ABOUT THIS ATLAS</p>
+    <h2>From Lean to Word2Vec</h2>
+    <dl class="stats" aria-label="Training corpus">
+      <div><dd id="stat-lines">17.4M</dd><dt>Lean lines</dt></div>
+      <div><dd id="stat-files">175,187</dd><dt>Modules</dt></div>
+      <div><dd id="stat-terms">69,737</dd><dt>Embedded terms</dt></div>
+    </dl>
+    <p>The corpus is the original Lean release preserved by the Lean community. Identifiers within each source line supply the contexts for a continuous bag-of-words model with negative sampling. Imports are indexed for navigation and omitted from model training.</p>
+    <p>Nearest terms are ranked by cosine similarity in 64 dimensions. The embedding atlas groups the normalized vectors into eight regions, then clusters each region again. The labels summarize inspected examples. Each subcluster uses its own two-dimensional PCA projection. Full PCA uses one projection for all regions. Hover or focus a region in the legend to isolate its plotted members. Similarity measures shared textual context. File links point to source occurrences.</p>
+    <p>The Lean reader uses the published compilation metadata to link explicit references in declarations. Kernel refs reads the constants in the compiled type and proof term. The Used by panel searches modules with metadata indexed locally. Mathlib references open the pinned source.</p>
+    <p id="version">130,386,902 training tokens across 175,187 modules. 5 training epochs. Source commit 40e56bab0265.</p>
+    <p><a href="https://leanprover-community.github.io/blog/posts/riemann-hypothesis/" target="_blank" rel="noreferrer">Read the independent verification</a></p>
+  </div>
+</dialog>
+</body>
+</html>
