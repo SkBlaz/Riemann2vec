@@ -1,0 +1,6 @@
+.work/
+.venv/
+__pycache__/
+.riemann-build-stage.log
+/docs/lean-source
+/docs/data/vectors.bin
